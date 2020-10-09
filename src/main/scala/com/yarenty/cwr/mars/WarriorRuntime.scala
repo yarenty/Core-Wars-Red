@@ -13,7 +13,7 @@ class WarriorRuntime {
 
   protected var next: WarriorRuntime = null // next warrior in the execute queue
 
-  def this(war: Warrior, FirstInst: Int, p: Array[Int]) {
+  def this(war: Warrior, FirstInst: Int, p: Array[Int]) = {
     this()
     warrior = war
     //		pQueue = new Vector();

@@ -10,7 +10,7 @@ class MarsVM(var coreSize: Int, var maxProc: Int, var pSize: Int) {
 
   protected var currentW: WarriorRuntime = null // current warrior
 
-  private[marsVM] var numWarriors  = 0
+  private var numWarriors  = 0
 
   def reset(): Unit = {
     currentW = null
@@ -52,26 +52,26 @@ class MarsVM(var coreSize: Int, var maxProc: Int, var pSize: Int) {
       return
     }
     // else if that was the last process in that warrior kill it
-    report.wDie
+    report.wDie()
     numWarriors -= 1
     currentW.setPCell(0, numWarriors)
     currentW.warrior.setPSpace(currentW.getPSpace)
     currentW = currentW.getNextWarrior
-    currentW.getPrevWarrior.Remove
+    currentW.getPrevWarrior.Remove()
     }
 
   def executeInstr: Report = {
-    val instr  = new Memory // copy of current instruction
-    var tempAddr  = 0 // temporary address for use in mode evaluation
-    var addrA  = 0 // A's address
-    val instrA  = new Memory
-    var addrAAValue  = 0 // address A's A Value
-    var addrABValue  = 0 // address B's B Value
-    var addrB  = 0 // address B
-    val instrB  = new Memory
-    var addrBAValue  = 0 // address B's A Value
-    var addrBBValue  = 0
-    val report  = new Report
+    val instr = new Memory // copy of current instruction
+    var tempAddr = 0 // temporary address for use in mode evaluation
+    var addrA = 0 // A's address
+    val instrA = new Memory
+    var addrAAValue = 0 // address A's A Value
+    var addrABValue = 0 // address B's B Value
+    var addrB = 0 // address B
+    val instrB = new Memory
+    var addrBAValue = 0 // address B's A Value
+    var addrBBValue = 0
+    val report = new Report
     // get instruction pointer
     IP = currentW.getProc
     report.warrior(currentW.warrior)
@@ -82,24 +82,33 @@ class MarsVM(var coreSize: Int, var maxProc: Int, var pSize: Int) {
     tempAddr = (instr.aValue + IP) % coreSize // temporary address stuffed with the direct value to evaluate actions and help with indirect mode
 
     // do Pre timed actions
-    if ((instr.aTiming eq Memory.PRE) && (instr.aAction ne Memory.NONE)) if (instr.aAction eq Memory.DECREMENT) {
-        if (instr.aTarget eq Memory.A) if ( {
-            core(tempAddr).aValue -= 1; core(tempAddr).aValue
-          } < 0) core(tempAddr).aValue = coreSize - 1
+    if ((instr.aTiming == Memory.PRE) && (instr.aAction != Memory.NONE))
+      if (instr.aAction == Memory.DECREMENT) {
+        if (instr.aTarget == Memory.A) if ( {
+          core(tempAddr).aValue -= 1;
+          core(tempAddr).aValue
+        } < 0) core(tempAddr).aValue = coreSize - 1
         else if ( {
-            core(tempAddr).bValue -= 1; core(tempAddr).bValue
-          } < 0) core(tempAddr).bValue = coreSize - 1
+          core(tempAddr).bValue -= 1;
+          core(tempAddr).bValue
+        } < 0) core(tempAddr).bValue = coreSize - 1
+
         report.decrement(tempAddr)
       }
       else {
-        if (instr.aTarget eq Memory.A) core(tempAddr).aValue = {
-            core(tempAddr).aValue += 1; core(tempAddr).aValue
-          } % coreSize
+        if (instr.aTarget == Memory.A) core(tempAddr).aValue = {
+          core(tempAddr).aValue += 1;
+          core(tempAddr).aValue
+        } % coreSize
         else core(tempAddr).bValue = {
-            core(tempAddr).bValue += 1; core(tempAddr).bValue
-          } % coreSize
+          core(tempAddr).bValue += 1;
+          core(tempAddr).bValue
+        } % coreSize
+
         report.increment(tempAddr)
       }
+
+
     // evaluate indirection
     instr.aIndir match {
       case Memory.IMMEDIATE =>
@@ -115,7 +124,7 @@ class MarsVM(var coreSize: Int, var maxProc: Int, var pSize: Int) {
         addrABValue = core(addrA).bValue
 
       case Memory.INDIRECT =>
-        if (instr.aTarget eq Memory.A) addrA = (core(tempAddr).aValue + tempAddr) % coreSize
+        if (instr.aTarget == Memory.A) addrA = (core(tempAddr).aValue + tempAddr) % coreSize
         else addrA = (core(tempAddr).bValue + tempAddr) % coreSize
         instrA.copy(core(addrA))
         addrAAValue = core(addrA).aValue
@@ -124,8 +133,8 @@ class MarsVM(var coreSize: Int, var maxProc: Int, var pSize: Int) {
 
     }
     // do Post actions
-    if ((instr.aTiming eq Memory.POST) && (instr.aAction ne Memory.NONE)) if (instr.aAction eq Memory.DECREMENT) {
-        if (instr.aTarget eq Memory.A) if ( {
+    if ((instr.aTiming == Memory.POST) && (instr.aAction != Memory.NONE)) if (instr.aAction == Memory.DECREMENT) {
+        if (instr.aTarget == Memory.A) if ( {
             core(tempAddr).aValue -= 1; core(tempAddr).aValue
           } < 0) core(tempAddr).aValue = coreSize - 1
         else if ( {
@@ -134,7 +143,7 @@ class MarsVM(var coreSize: Int, var maxProc: Int, var pSize: Int) {
         report.decrement(tempAddr)
       }
       else {
-        if (instr.aTarget eq Memory.A) core(tempAddr).aValue = {
+        if (instr.aTarget == Memory.A) core(tempAddr).aValue = {
             core(tempAddr).aValue += 1; core(tempAddr).aValue
           } % coreSize
         else core(tempAddr).bValue = {
@@ -144,8 +153,8 @@ class MarsVM(var coreSize: Int, var maxProc: Int, var pSize: Int) {
       }
     // evaluate B operand
     tempAddr = (instr.bValue + IP) % coreSize
-    if ((instr.bTiming eq Memory.PRE) && (instr.bAction ne Memory.NONE)) if (instr.bAction eq Memory.DECREMENT) {
-        if (instr.bTarget eq Memory.A) if ( {
+    if ((instr.bTiming == Memory.PRE) && (instr.bAction != Memory.NONE)) if (instr.bAction == Memory.DECREMENT) {
+        if (instr.bTarget == Memory.A) if ( {
             core(tempAddr).aValue -= 1; core(tempAddr).aValue
           } < 0) core(tempAddr).aValue = coreSize - 1
         else if ( {
@@ -154,7 +163,7 @@ class MarsVM(var coreSize: Int, var maxProc: Int, var pSize: Int) {
         report.decrement(tempAddr)
       }
       else {
-        if (instr.bTarget eq Memory.A) core(tempAddr).aValue = {
+        if (instr.bTarget == Memory.A) core(tempAddr).aValue = {
             core(tempAddr).aValue += 1; core(tempAddr).aValue
           } % coreSize
         else core(tempAddr).bValue = {
@@ -176,7 +185,7 @@ class MarsVM(var coreSize: Int, var maxProc: Int, var pSize: Int) {
         addrBBValue = core(addrB).bValue
 
       case Memory.INDIRECT =>
-        if (instr.bTarget eq Memory.A) addrB = (core(tempAddr).aValue + tempAddr) % coreSize
+        if (instr.bTarget == Memory.A) addrB = (core(tempAddr).aValue + tempAddr) % coreSize
         else addrB = (core(tempAddr).bValue + tempAddr) % coreSize
         instrB.copy(core(addrB))
         addrBAValue = core(addrB).aValue
@@ -184,8 +193,8 @@ class MarsVM(var coreSize: Int, var maxProc: Int, var pSize: Int) {
         report.increment(tempAddr)
 
     }
-    if ((instr.bTiming eq Memory.POST) && (instr.bAction ne Memory.NONE)) if (instr.bAction eq Memory.DECREMENT) {
-        if (instr.bTarget eq Memory.A) if ( {
+    if ((instr.bTiming == Memory.POST) && (instr.bAction != Memory.NONE)) if (instr.bAction == Memory.DECREMENT) {
+        if (instr.bTarget == Memory.A) if ( {
             core(tempAddr).aValue -= 1; core(tempAddr).aValue
           } < 0) core(tempAddr).aValue = coreSize - 1
         else if ( {
@@ -194,7 +203,7 @@ class MarsVM(var coreSize: Int, var maxProc: Int, var pSize: Int) {
         report.decrement(tempAddr)
       }
       else {
-        if (instr.bTarget eq Memory.A) core(tempAddr).aValue = {
+        if (instr.bTarget == Memory.A) core(tempAddr).aValue = {
             core(tempAddr).aValue += 1; core(tempAddr).aValue
           } % coreSize
         else core(tempAddr).bValue = {
@@ -260,22 +269,28 @@ class MarsVM(var coreSize: Int, var maxProc: Int, var pSize: Int) {
       case Memory.SUB =>
         instr.modifier match {
           case Memory.mA =>
-            if ((core(addrB).aValue = addrBAValue - addrAAValue) < 0) core(addrB).aValue += coreSize
+            core(addrB).aValue = addrBAValue - addrAAValue
+            if (core(addrB).aValue < 0) core(addrB).aValue += coreSize
 
           case Memory.mI =>
           case Memory.mF =>
-            if ((core(addrB).aValue = addrBAValue - addrAAValue) < 0) core(addrB).aValue += coreSize
+            core(addrB).aValue = addrBAValue - addrAAValue
+            if (core(addrB).aValue  < 0) core(addrB).aValue += coreSize
           case Memory.mB =>
-            if ((core(addrB).bValue = addrBBValue - addrABValue) < 0) core(addrB).bValue += coreSize
+            core(addrB).bValue = addrBBValue - addrABValue
+            if (core(addrB).bValue < 0) core(addrB).bValue += coreSize
 
           case Memory.mAB =>
-            if ((core(addrB).bValue = addrBBValue - addrAAValue) < 0) core(addrB).bValue += coreSize
+            core(addrB).bValue = addrBBValue - addrAAValue
+            if (core(addrB).bValue < 0) core(addrB).bValue += coreSize
 
           case Memory.mX =>
-            if ((core(addrB).bValue = addrBBValue - addrAAValue) < 0) core(addrB).aValue += coreSize
+            core(addrB).bValue = addrBBValue - addrAAValue
+            if (core(addrB).bValue  < 0) core(addrB).aValue += coreSize
           // falthrough for rest
           case Memory.mBA =>
-            if ((core(addrB).aValue = addrBAValue - addrABValue) < 0) core(addrB).aValue += coreSize
+            core(addrB).aValue = addrBAValue - addrABValue
+            if (core(addrB).aValue  < 0) core(addrB).aValue += coreSize
 
         }
         report.read(addrA)
@@ -459,18 +474,18 @@ class MarsVM(var coreSize: Int, var maxProc: Int, var pSize: Int) {
         instr.modifier match {
           case Memory.mA =>
           case Memory.mBA =>
-            if (addrBAValue != 0) return//todo: return is not supported
+            if (addrBAValue != 0) return null//todo: return is not supported
             currentW.addProc(addrA)
             currentW = currentW.getNextWarrior
             return report
           case Memory.mF =>
           case Memory.mX =>
           case Memory.mI =>
-            if (addrBAValue != 0) return//todo: return is not supported
+            if (addrBAValue != 0) return null//todo: return is not supported
           // fallthrough
           case Memory.mB =>
           case Memory.mAB =>
-            if (addrBBValue != 0) return//todo: return is not supported
+            if (addrBBValue != 0) return null//todo: return is not supported
             currentW.addProc(addrA)
             currentW = currentW.getNextWarrior
             return report
@@ -481,19 +496,19 @@ class MarsVM(var coreSize: Int, var maxProc: Int, var pSize: Int) {
         instr.modifier match {
           case Memory.mA =>
           case Memory.mBA =>
-            if (addrBAValue == 0) return//todo: return is not supported
+            if (addrBAValue == 0) return null//todo: return is not supported
             currentW.addProc(addrA)
             currentW = currentW.getNextWarrior
             return report
           case Memory.mF =>
           case Memory.mX =>
           case Memory.mI =>
-            if ((addrBAValue == 0) && (addrBBValue == 0)) return//todo: return is not supported
+            if ((addrBAValue == 0) && (addrBBValue == 0)) return null//todo: return is not supported
             currentW.addProc(addrA)
 
           case Memory.mB =>
           case Memory.mAB =>
-            if (addrBBValue == 0) return//todo: return is not supported
+            if (addrBBValue == 0) return null//todo: return is not supported
             currentW.addProc(addrA)
             currentW = currentW.getNextWarrior
             return report
@@ -507,7 +522,7 @@ class MarsVM(var coreSize: Int, var maxProc: Int, var pSize: Int) {
             if ( {
               core(addrB).aValue -= 1; core(addrB).aValue
             } < 0) core(addrB).aValue = coreSize - 1
-            if (addrBAValue == 1) return//todo: return is not supported
+            if (addrBAValue == 1) return null//todo: return is not supported
             currentW.addProc(addrA)
             currentW = currentW.getNextWarrior
             return report
@@ -516,7 +531,7 @@ class MarsVM(var coreSize: Int, var maxProc: Int, var pSize: Int) {
             if ( {
               core(addrB).bValue -= 1; core(addrB).bValue
             } < 0) core(addrB).bValue = coreSize - 1
-            if (addrBBValue == 1) return//todo: return is not supported
+            if (addrBBValue == 1) return null//todo: return is not supported
             currentW.addProc(addrA)
             currentW = currentW.getNextWarrior
             return report
@@ -529,7 +544,7 @@ class MarsVM(var coreSize: Int, var maxProc: Int, var pSize: Int) {
             if ( {
               core(addrB).aValue -= 1; core(addrB).aValue
             } < 0) core(addrB).aValue = coreSize - 1
-            if ((addrBAValue == 1) && (addrBBValue == 1)) return//todo: return is not supported
+            if ((addrBAValue == 1) && (addrBBValue == 1)) return null //todo: return is not supported
             currentW.addProc(addrA)
             currentW = currentW.getNextWarrior
             return report
@@ -540,28 +555,28 @@ class MarsVM(var coreSize: Int, var maxProc: Int, var pSize: Int) {
         report.read(addrB)
         instr.modifier match {
           case Memory.mA =>
-            if (addrBAValue != addrAAValue) return//todo: return is not supported
+            if (addrBAValue != addrAAValue) return null //todo: return is not supported
             currentW.addProc((IP + 2) % coreSize)
             currentW = currentW.getNextWarrior
             return report
           case Memory.mI =>
-            if (! core(addrB).equals(core(addrA)) ) return//todo: return is not supported
+            if (! core(addrB).equals(core(addrA)) ) return null //todo: return is not supported
           case Memory.mF =>
-            if (addrBAValue != addrAAValue) return//todo: return is not supported
+            if (addrBAValue != addrAAValue) return null //todo: return is not supported
           case Memory.mB =>
-            if (addrBBValue != addrABValue) return//todo: return is not supported
+            if (addrBBValue != addrABValue) return null //todo: return is not supported
             currentW.addProc((IP + 2) % coreSize)
             currentW = currentW.getNextWarrior
             return report
           case Memory.mAB =>
-            if (addrBBValue != addrAAValue) return//todo: return is not supported
+            if (addrBBValue != addrAAValue) return null //todo: return is not supported
             currentW.addProc((IP + 2) % coreSize)
             currentW = currentW.getNextWarrior
             return report
           case Memory.mX =>
-            if (addrBBValue != addrAAValue) return//todo: return is not supported
+            if (addrBBValue != addrAAValue) return null //todo: return is not supported
           case Memory.mBA =>
-            if (addrBAValue != addrABValue) return//todo: return is not supported
+            if (addrBAValue != addrABValue) return null //todo: return is not supported
             currentW.addProc((IP + 2) % coreSize)
             currentW = currentW.getNextWarrior
             return report
@@ -572,37 +587,37 @@ class MarsVM(var coreSize: Int, var maxProc: Int, var pSize: Int) {
         report.read(addrB)
         instr.modifier match {
           case Memory.mA =>
-            if (addrBAValue == addrAAValue) return//todo: return is not supported
+            if (addrBAValue == addrAAValue) return null //todo: return is not supported
             currentW.addProc((IP + 2) % coreSize)
             currentW = currentW.getNextWarrior
             return report
           case Memory.mI =>
-            if (core(addrB).equals(core(addrA))) return//todo: return is not supported
+            if (core(addrB).equals(core(addrA))) return null //todo: return is not supported
             currentW.addProc((IP + 2) % coreSize)
             currentW = currentW.getNextWarrior
             return report
           case Memory.mF =>
-            if ((addrBAValue == addrAAValue) && (addrBBValue == addrABValue)) return//todo: return is not supported
+            if ((addrBAValue == addrAAValue) && (addrBBValue == addrABValue)) return null //todo: return is not supported
             currentW.addProc((IP + 2) % coreSize)
             currentW = currentW.getNextWarrior
             return report
           case Memory.mB =>
-            if (addrBBValue == addrABValue) return//todo: return is not supported
+            if (addrBBValue == addrABValue) return null //todo: return is not supported
             currentW.addProc((IP + 2) % coreSize)
             currentW = currentW.getNextWarrior
             return report
           case Memory.mAB =>
-            if (addrBBValue == addrAAValue) return//todo: return is not supported
+            if (addrBBValue == addrAAValue) return null //todo: return is not supported
             currentW.addProc((IP + 2) % coreSize)
             currentW = currentW.getNextWarrior
             return report
           case Memory.mX =>
-            if ((addrBBValue == addrAAValue) && (addrBAValue == addrABValue)) return//todo: return is not supported
+            if ((addrBBValue == addrAAValue) && (addrBAValue == addrABValue)) return null //todo: return is not supported
             currentW.addProc((IP + 2) % coreSize)
             currentW = currentW.getNextWarrior
             return report
           case Memory.mBA =>
-            if (addrBAValue == addrABValue) return//todo: return is not supported
+            if (addrBAValue == addrABValue) return null //todo: return is not supported
             currentW.addProc((IP + 2) % coreSize)
             currentW = currentW.getNextWarrior
             return report
@@ -613,27 +628,27 @@ class MarsVM(var coreSize: Int, var maxProc: Int, var pSize: Int) {
         report.read(addrB)
         instr.modifier match {
           case Memory.mA =>
-            if (addrBAValue <= addrAAValue) return//todo: return is not supported
+            if (addrBAValue <= addrAAValue) return null //todo: return is not supported
             currentW.addProc((IP + 2) % coreSize)
             currentW = currentW.getNextWarrior
             return report
           case Memory.mF =>
           case Memory.mI =>
-            if (addrBAValue <= addrAAValue) return//todo: return is not supported
+            if (addrBAValue <= addrAAValue) return null //todo: return is not supported
           case Memory.mB =>
-            if (addrBBValue <= addrABValue) return//todo: return is not supported
+            if (addrBBValue <= addrABValue) return null //todo: return is not supported
             currentW.addProc((IP + 2) % coreSize)
             currentW = currentW.getNextWarrior
             return report
           case Memory.mAB =>
-            if (addrBBValue <= addrAAValue) return//todo: return is not supported
+            if (addrBBValue <= addrAAValue) return null //todo: return is not supported
             currentW.addProc((IP + 2) % coreSize)
             currentW = currentW.getNextWarrior
             return report
           case Memory.mX =>
-            if (addrBBValue <= addrAAValue) return//todo: return is not supported
+            if (addrBBValue <= addrAAValue) return null //todo: return is not supported
           case Memory.mBA =>
-            if (addrBAValue <= addrABValue) return//todo: return is not supported
+            if (addrBAValue <= addrABValue) return null //todo: return is not supported
             currentW.addProc((IP + 2) % coreSize)
             currentW = currentW.getNextWarrior
             return report

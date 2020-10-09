@@ -38,10 +38,10 @@ object Memory { // valid opcodes
   val A = 0
   val B = 1
   // valid Timings
-  val PRE = 0
+  val PRE:Int = 0
   val POST = 1
   // valid Actions
-  val NONE = 0
+  val NONE:Int  = 0
   val DECREMENT = 1
   val INCREMENT = 2
 }
@@ -49,22 +49,22 @@ object Memory { // valid opcodes
 class Memory() {
 
   // fields of a memory cell
-  var opcode = Memory.DAT
-  var modifier = Memory.mF
-  var aIndir = Memory.DIRECT
-  var bIndir = Memory.DIRECT // Immediate, Direct or Indirect
+  var opcode:Int = Memory.DAT
+  var modifier:Int = Memory.mF
+  var aIndir:Int = Memory.DIRECT
+  var bIndir:Int = Memory.DIRECT // Immediate, Direct or Indirect
 
-  var aTarget = Memory.B
-  var bTarget = Memory.B // A or B indirection
+  var aTarget:Int = Memory.B
+  var bTarget:Int  = Memory.B // A or B indirection
 
-  var aTiming = Memory.PRE
-  var bTiming = Memory.PRE // Pre or Post
+  var aTiming: Int = Memory.PRE
+  var bTiming: Int  = Memory.PRE // Pre or Post
 
-  var aAction = Memory.NONE
-  var bAction = Memory.NONE // decrement or increment
+  var aAction: Int = Memory.NONE
+  var bAction: Int = Memory.NONE // decrement or increment
 
-  var aValue = 0
-  var bValue = 0
+  var aValue:Int = 0
+  var bValue:Int = 0
 
 
 
