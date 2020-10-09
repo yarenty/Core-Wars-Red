@@ -1,7 +1,7 @@
 package com.yarenty.cwr.mars
 
 class WarriorRuntime {
-  protected var warrior: Warrior = null
+  var warrior: Warrior = null
   protected var pspace: Array[Int] = null
   //	protected Vector pQueue;
   protected var pQueue: Array[Int] = null
