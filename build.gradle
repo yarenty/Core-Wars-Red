@@ -1,0 +1,26 @@
+apply plugin: 'scala'
+apply plugin: 'idea'
+apply plugin: 'application'
+mainClassName = 'com.yarent.cwr.Main' //this is initial point for all my activities - I will use gradle run - I am lazy! ;-)
+
+group 'com.yarenty.cwr'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+ext {
+    scalaBinaryVersion = '2.13'
+    scalaVersion = '2.13.3'
+}
+
+dependencies {
+
+    compile group: 'org.scala-lang', name: 'scala-library', version: '2.13.3'
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
