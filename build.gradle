@@ -1,6 +1,4 @@
 buildscript {
-
-
     repositories {
         mavenLocal()
         mavenCentral()
@@ -13,10 +11,9 @@ buildscript {
         classpath 'org.wisepersist:gwt-gradle-plugin:1.0.13'
         classpath 'org.gretty:gretty:3.0.2'
         classpath 'com.mobidevelop.robovm:robovm-gradle-plugin:2.3.10'
-
-
     }
 }
+
 
 
 
@@ -33,10 +30,12 @@ allprojects {
     ext {
         appName = "Core Wars Red"
         gdxVersion = '1.9.11'
-        roboVMVersion = '2.3.10'
+        roboVMVersion = '2.3.11'
         box2DLightsVersion = '1.4'
         ashleyVersion = '1.7.0'
         aiVersion = '1.8.0'
+        scalaBinaryVersion = '2.13'
+        scalaVersion = '2.13.3'
     }
 
     repositories {
@@ -51,11 +50,6 @@ allprojects {
 
     sourceCompatibility = 1.8
 
-
-    ext {
-        scalaBinaryVersion = '2.13'
-        scalaVersion = '2.13.3'
-    }
 }
 
 project(":desktop") {

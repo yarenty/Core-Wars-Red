@@ -2,4 +2,4 @@ sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 
-project.name = appName + "-core"
+//project.name = appName + "-core"
